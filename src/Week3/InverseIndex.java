@@ -29,11 +29,11 @@ public class InverseIndex {
 	    	  	id.add(nullmap);
 	    	  	String link = cacm.pop();
 	    	  	BufferedReader br = new BufferedReader(new FileReader("cacm/" + link));
-				StringBuilder content = new StringBuilder();
 				HashMap<Integer, String> addHash = new HashMap();
         		addHash.put(1, link);
 				String str;
 				String contents = "";
+				Set<String> keys = index.keySet();
 				try {
 						while ((str = br.readLine()) != null) {
 								contents +=str;
@@ -45,16 +45,16 @@ public class InverseIndex {
 						        finally
 						        {
 						        	String[] tokens = Tokenize(contents);
-						        	
+						        	for (String key : keys)
+						        	{
+						        		index.get(key).add(nullmap);
+						        	}
 						        	for (String token : tokens)
 						        	{
 						        		
 						        		Vector<HashMap<Integer, String>> newId = (Vector<HashMap<Integer, String>>) id.clone();
 						        		if (!index.containsKey(token))
 						        		{
-						        			if (newId.isEmpty()) {
-						        				newId.remove(-1);
-						        			}
 						        			HashMap<Integer, String> newMap = new HashMap();
 						        			newMap.put(1, link);
 						        			Vector<HashMap<Integer, String>> docids = new Vector<HashMap<Integer, String>>();
@@ -66,8 +66,12 @@ public class InverseIndex {
 						        			
 						        			if (index.get(token).lastElement().get(1) != link)
 						        			{
-						        			
-						        			index.get(token).add(addHash);
+						        				
+						        				HashMap<Integer, String> newMap = new HashMap();
+						        				newMap.put(1, link);
+						        				System.out.println(newMap.get(1));
+						        			index.get(token).set(index.get(token).size()-1, newMap);
+						        			System.out.println(index.get(token).lastElement().get(1));
 						        		/* 	System.out.println("Key: " + token + "\n");
 						        			System.out.println("Value: " + link + "\n"); */
 						        
@@ -80,7 +84,7 @@ public class InverseIndex {
 				
 				
 	      }
-	      Set<String> keys = index.keySet();
+	      
 
 			
 			/*		 File f = new File("indexed_cacm");
@@ -100,6 +104,7 @@ public class InverseIndex {
 			Scanner userInput = new Scanner( System.in);
 		  String query = "";
 		  while (query != "STOP") {
+			  Set<String> keys = index.keySet();
 		      System.out.println("Index size is: " + keys.size());
 		      System.out.println("Please input a query as a AND/OR/NOT b eg: Charmonman NOT carries \n Or type STOP to quit \n Query: ");Scanner input = new Scanner( System.in);
 		      
@@ -121,9 +126,10 @@ public class InverseIndex {
 		      }
 		      else {
 		    	  int length = index.get(querySplit[0]).size();
+		    	  System.out.println("Documents that contain " + querySplit[0] + ": ");
 		    	  for (int i = 0; i < length; i++) {
-		    		  System.out.println("Documents that contain " + querySplit[0] + ": ");
-		    		  System.out.println(index.get(querySplit[0]).elementAt(i).get(1) + ",");
+		    		 
+		    		  if(index.get(querySplit[0]).elementAt(i).get(1) != null) {System.out.print( index.get(querySplit[0]).elementAt(i).get(1)   + ",") ; }
 		    	  
 		    	  }
 		      }
