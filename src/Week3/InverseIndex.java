@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Set;
@@ -20,23 +21,25 @@ public class InverseIndex {
 	      Stack<String> cacm = listFilesForFolder(folder);
 	      FileWriter fWriter = null;
 	      BufferedWriter writer = null;
-	      HashMap<String, Vector<HashMap<Integer, String>>> index = new HashMap();
-	      Vector<HashMap<Integer, String>> id = new Vector<HashMap<Integer, String>>();
+	      String str;
+	      String contents = "";
+	      HashMap<String, Vector<Integer>> index = new HashMap();
+	      HashMap<String, Vector<Integer>> id = new HashMap<String, Vector<Integer>>();
+	      
+	      
+	      
+	      
+	      
 	      while (!cacm.empty())
 	      {
-	    	  	HashMap nullmap = new HashMap();
-	    	  	nullmap.put(0, "");
-	    	  	id.add(nullmap);
 	    	  	String link = cacm.pop();
 	    	  	BufferedReader br = new BufferedReader(new FileReader("cacm/" + link));
-				HashMap<Integer, String> addHash = new HashMap();
-        		addHash.put(1, link);
-				String str;
-				String contents = "";
+	    	  	System.out.println(link);
+				
 				Set<String> keys = index.keySet();
 				try {
 						while ((str = br.readLine()) != null) {
-								contents +=str;
+								contents += str;
 						}
 						br.close();
 						} catch (IOException e) {
@@ -45,62 +48,32 @@ public class InverseIndex {
 						        finally
 						        {
 						        	String[] tokens = Tokenize(contents);
-						        	for (String key : keys)
-						        	{
-						        		index.get(key).add(nullmap);
-						        	}
 						        	for (String token : tokens)
 						        	{
-						        		
-						        		Vector<HashMap<Integer, String>> newId = (Vector<HashMap<Integer, String>>) id.clone();
-						        		if (!index.containsKey(token))
+						        		Vector<Integer> values = index.containsKey(token) ? index.get(token)  : new Vector<Integer>();
+						        		if (index.containsKey(token))
 						        		{
-						        			HashMap<Integer, String> newMap = new HashMap();
-						        			newMap.put(1, link);
-						        			Vector<HashMap<Integer, String>> docids = new Vector<HashMap<Integer, String>>();
-						        			docids.add(newMap);
-						        			index.put(token, docids);
+						        			values.add(1);
+						        			index.put(token, values);
 						        		}
 						        		else
 						        		{
-						        			
-						        			if (index.get(token).lastElement().get(1) != link)
-						        			{
-						        				
-						        				HashMap<Integer, String> newMap = new HashMap();
-						        				newMap.put(1, link);
-						        				System.out.println(newMap.get(1));
-						        			index.get(token).set(index.get(token).size()-1, newMap);
-						        			System.out.println(index.get(token).lastElement().get(1));
-						        		/* 	System.out.println("Key: " + token + "\n");
-						        			System.out.println("Value: " + link + "\n"); */
+						        			values.add(0);
+						        			index.put(token, values);
 						        
-						        			}
 						        		}
 						        		
 						        	}
+						        		
+						        }
 		
-	}
+	      	}
 				
 				
-	      }
+	      
 	      
 
 			
-			/*		 File f = new File("indexed_cacm");
-  		 f.createNewFile();
-  		 fWriter = new FileWriter("Indexed_cacm");
-  		  
-	         writer = new BufferedWriter(fWriter); 
-  	  
-			for (String key : keys) {
-				System.out.println("Key: " + key);
-				for(HashMap value : index.get(key))
-				{
-					 System.out.println("Value: " + value.get(1));
-				}
-				
-			}*/
 			Scanner userInput = new Scanner( System.in);
 		  String query = "";
 		  while (query != "STOP") {
@@ -127,13 +100,8 @@ public class InverseIndex {
 		      else {
 		    	  int length = index.get(querySplit[0]).size();
 		    	  System.out.println("Documents that contain " + querySplit[0] + ": ");
-		    	  for (int i = 0; i < length; i++) {
-		    		 
-		    		  if(index.get(querySplit[0]).elementAt(i).get(1) != null) {System.out.print( index.get(querySplit[0]).elementAt(i).get(1)   + ",") ; }
-		    	  
-		    	  }
 		      }
-		  }
+		     }
 	      }
 	
 	
@@ -145,7 +113,8 @@ public class InverseIndex {
 		contents = contents.replaceAll("</pre>", "");
 		contents = contents.replaceAll("[0-9]", "");
 		contents = contents.replaceAll(",", "");
-		contents = contents.replaceAll("\t", "");
+		contents = contents.replaceAll(".", "");
+		contents = contents.replaceAll("\t", " ");
 		
 		String[] tokens = contents.split(" ");
 		for (String token : tokens) {
@@ -168,37 +137,30 @@ public class InverseIndex {
 	  		
 	  	}
 	      
-	      public static void AND(String query1, String query2, HashMap<String, Vector<HashMap<Integer, String>>> index) {
+	      public static void AND(String query1, String query2, HashMap<String, Vector<Integer>> index) {
 	    	  System.out.println("Documents that contain " + query1 + " and " + query2);
 	    	  for (int i = 0; i < index.get(query1).size(); i++) {
-	    		  if (index.get(query2).elementAt(i) != null) {
-	    		  if (index.get(query1).elementAt(i).get(1) == index.get(query2).elementAt(i).get(1))
-	    		  {
-	    			  System.out.println(index.get(query1).elementAt(i).get(1) + ", ");
-	    		  }
+	    		  if (index.containsValue(query1) && index.containsValue(query2)) {
+	    			  System.out.println("This document contains " + query1 + "and " + query2);
 	    		  }
 	    	  }
 	      }
 	      
-	      public static void OR(String query1, String query2, HashMap<String, Vector<HashMap<Integer, String>>> index) {
+	      public static void OR(String query1, String query2, HashMap<String, Vector<Integer>> index) {
 	    	  System.out.println("Documents that contain " + query1 + " or " + query2);
 	    	  for (int i = 0; i < index.get(query1).size(); i++) {
-	    		  if (index.get(query2).elementAt(i).get(1) != null) {
-	    			  System.out.println(index.get(query1).elementAt(i).get(1) + ", ");
-	    			  System.out.println(index.get(query2).elementAt(i).get(1) + ", ");
+	    		  if (index.containsValue(query1) || index.containsValue(query2)) {
+	    			  System.out.println("This document contains " + query1 + "and " + query2);
 	    		  }
 	    		  
 	    	  }
 	      }
 	      
-	      public static void NOT(String query1, String query2, HashMap<String, Vector<HashMap<Integer, String>>> index) {
+	      public static void NOT(String query1, String query2, HashMap<String, Vector<Integer>> index) {
 	    	  System.out.println("Documents that contain " + query1 + ", but not " + query2);
 	    	  for (int i = 0; i < index.get(query1).size(); i++) {
-	    		  if (index.get(query2).elementAt(i).get(1) != null) {
-	    		  if (index.get(query1).elementAt(i).containsValue(1) != index.get(query2).elementAt(i).containsValue(1))
-	    		  {
-	    			  System.out.println(index.get(query1).elementAt(i).get(1) + ", ");
-	    		  }
+	    		  if (index.containsValue(query1) && !index.containsValue(query2)) {
+	    			  System.out.println("This document contains " + query1 + "and " + query2);
 	    		  }
 	    	  }
 	      }
